@@ -1,0 +1,39 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "udacityadf"
+		},
+		"ls_blob_accountKey": {
+			"value": ""
+		},
+		"ls_datalakegen2_nycpayroll_accountKey": {
+			"value": ""
+		},
+		"ls_sqldb_nycpayroll_connectionString": {
+			"value": ""
+		},
+		"ls_sqldb_sales_connectionString": {
+			"value": ""
+		},
+		"ls_synapse_connectionString": {
+			"value": ""
+		},
+		"ls_synapse_payroll_pool_connectionString": {
+			"value": ""
+		},
+		"ls_blob_properties_typeProperties_url": {
+			"value": "https://blobudacity.dfs.core.windows.net/"
+		},
+		"ls_datalakegen2_nycpayroll_properties_typeProperties_url": {
+			"value": "https://blobudacity.dfs.core.windows.net/"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
