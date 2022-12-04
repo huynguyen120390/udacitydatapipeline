@@ -1,0 +1,53 @@
+{
+	"name": "pipeline test aggregate sales param",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dataflow aggregate sale params",
+						"type": "DataFlowReference",
+						"parameters": {
+							"df_prama_cusid": {
+								"value": "@pipeline().parameters.pl_param_custid",
+								"type": "Expression"
+							}
+						}
+					},
+					"staging": {
+						"linkedService": {
+							"referenceName": "ls_blob",
+							"type": "LinkedServiceReference"
+						},
+						"folderPath": "stagingcontainer/stagingdirectory"
+					},
+					"integrationRuntime": {
+						"referenceName": "IRWestUs",
+						"type": "IntegrationRuntimeReference"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"pl_param_custid": {
+				"type": "int",
+				"defaultValue": 30070
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-29T06:44:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

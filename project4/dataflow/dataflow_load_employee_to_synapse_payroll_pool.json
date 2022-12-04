@@ -1,0 +1,64 @@
+{
+	"name": "dataflow_load_employee_to_synapse_payroll_pool",
+	"properties": {
+		"folder": {
+			"name": "project4"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_datalakegen2_empmaster",
+						"type": "DatasetReference"
+					},
+					"name": "sourcedatalakeemployee",
+					"description": "Source of datalake employee"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_synapse_nycpayroll_emp_md",
+						"type": "DatasetReference"
+					},
+					"name": "sinksynapsepayrollpoolemployee",
+					"description": "Sink Synapse Payroll Pool for Employee"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeID as string,",
+				"          LastName as string,",
+				"          FirstName as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sourcedatalakeemployee",
+				"sourcedatalakeemployee sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          EmployeeID as string,",
+				"          LastName as string,",
+				"          FirstName as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          EmployeeID,",
+				"          LastName,",
+				"          FirstName",
+				"     )) ~> sinksynapsepayrollpoolemployee"
+			]
+		}
+	}
+}

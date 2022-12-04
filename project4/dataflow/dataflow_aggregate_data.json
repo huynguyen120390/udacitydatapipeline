@@ -1,0 +1,133 @@
+{
+	"name": "dataflow_aggregate_data",
+	"properties": {
+		"folder": {
+			"name": "project4"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_datalake_payroll_2020",
+						"type": "DatasetReference"
+					},
+					"name": "historyfile"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sqldb_nycpayroll_2021",
+						"type": "DatasetReference"
+					},
+					"name": "synapsepayroll"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "table_synapse_nycpayroll_summary",
+						"type": "DatasetReference"
+					},
+					"name": "sinksynapsepayrollsummary"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Union"
+				},
+				{
+					"name": "FilterFiscalYear"
+				},
+				{
+					"name": "TotalPaid"
+				},
+				{
+					"name": "GroupByAgencyNameAndFiscalYear"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     dataflow_param_fiscalyear as integer (FiscalYear)",
+				"}",
+				"source(output(",
+				"          FiscalYear as integer '000',",
+				"          PayrollNumber as integer '000',",
+				"          AgencyID as string,",
+				"          AgencyName as string,",
+				"          EmployeeID as string,",
+				"          LastName as string,",
+				"          FirstName as string,",
+				"          AgencyStartDate as date 'MM/dd/yyyy',",
+				"          WorkLocationBorough as string,",
+				"          TitleCode as string,",
+				"          TitleDescription as string,",
+				"          LeaveStatusasofJune30 as string,",
+				"          BaseSalary as double '000,000,000.000',",
+				"          PayBasis as string,",
+				"          RegularHours as double '000,000,000.000',",
+				"          RegularGrossPaid as double '000,000,000.000',",
+				"          OTHours as double '000,000,000.000',",
+				"          TotalOTPaid as double '000,000,000.000',",
+				"          TotalOtherPay as double '000,000,000.000'",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> historyfile",
+				"source(output(",
+				"          FiscalYear as integer,",
+				"          PayrollNumber as integer,",
+				"          AgencyID as string,",
+				"          AgencyName as string,",
+				"          EmployeeID as string,",
+				"          LastName as string,",
+				"          FirstName as string,",
+				"          AgencyStartDate as date,",
+				"          WorkLocationBorough as string,",
+				"          TitleCode as string,",
+				"          TitleDescription as string,",
+				"          LeaveStatusasofJune30 as string,",
+				"          BaseSalary as double,",
+				"          PayBasis as string,",
+				"          RegularHours as double,",
+				"          RegularGrossPaid as double,",
+				"          OTHours as double,",
+				"          TotalOTPaid as double,",
+				"          TotalOtherPay as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> synapsepayroll",
+				"synapsepayroll, historyfile union(byName: true)~> Union",
+				"Union filter(toInteger(FiscalYear)>=$dataflow_param_fiscalyear) ~> FilterFiscalYear",
+				"FilterFiscalYear derive(TotalPaid = RegularGrossPaid + TotalOTPaid + TotalOtherPay) ~> TotalPaid",
+				"TotalPaid aggregate(groupBy(AgencyName,",
+				"          FiscalYear),",
+				"     TotalPaid = sum(TotalPaid)) ~> GroupByAgencyNameAndFiscalYear",
+				"GroupByAgencyNameAndFiscalYear sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          FiscalYear as integer,",
+				"          AgencyName as string,",
+				"          TotalPaid as double",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          FiscalYear,",
+				"          AgencyName,",
+				"          TotalPaid",
+				"     )) ~> sinksynapsepayrollsummary"
+			]
+		}
+	}
+}

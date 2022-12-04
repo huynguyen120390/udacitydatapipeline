@@ -1,0 +1,61 @@
+{
+	"name": "dataflow_load_title_to_synapse",
+	"properties": {
+		"folder": {
+			"name": "project4"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_datalakegen2_titlemaster",
+						"type": "DatasetReference"
+					},
+					"name": "sourcedatalaketitle",
+					"description": "Source of DataLake for Title"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_synapse_nycpayroll_title_md",
+						"type": "DatasetReference"
+					},
+					"name": "sinksynapsepayrollpooltitle",
+					"description": "Sink of Synapse for Payroll Poll for Title"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          TitleCode as string,",
+				"          TitleDescription as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sourcedatalaketitle",
+				"sourcedatalaketitle sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          TitleCode as string,",
+				"          TitleDescription as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          TitleCode,",
+				"          TitleDescription",
+				"     )) ~> sinksynapsepayrollpooltitle"
+			]
+		}
+	}
+}
